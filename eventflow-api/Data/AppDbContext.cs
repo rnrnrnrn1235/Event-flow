@@ -17,6 +17,11 @@ namespace Eventflow.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email).IsUnique();
             
+            // Configure Role enum to be stored as string
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasConversion<string>();
+            
             //one watchlist per user for each event
             modelBuilder.Entity<watchlist>()
                 .HasIndex(w => new { w.UserId, w.EventId }).IsUnique();

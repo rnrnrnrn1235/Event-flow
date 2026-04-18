@@ -2,6 +2,7 @@ using Eventflow.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +24,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwt["issuer"],
-        ValidAudience = jwt["audience"],
+        ValidIssuer = jwt["Issuer"],
+        ValidAudience = jwt["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
             System.Text.Encoding.UTF8
-            .GetBytes(jwt["SecretKey"]!))
+            .GetBytes(jwt["Key"]!))
     };
 });
 builder.Services.AddAuthorization();
@@ -42,7 +43,10 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<JwtHelper>();
 //builder.Services.AddSignalR(); //Also later ba3den.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddCors(options =>
 options.AddPolicy("ReactApp", policy =>

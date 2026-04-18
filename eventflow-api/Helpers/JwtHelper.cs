@@ -16,7 +16,7 @@ public class JwtHelper
     {
         var settings = configuration.GetSection("JwtSettings");
         var key = new SymmetricSecurityKey(Encoding
-        .UTF8.GetBytes(settings["SecretKey"]!));
+        .UTF8.GetBytes(settings["Key"]!));
     var claims = new[]
     {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -24,8 +24,8 @@ public class JwtHelper
         new Claim(ClaimTypes.Role, user.Role.ToString())
     };
     var token = new JwtSecurityToken(
-        issuer: settings["issuer"],
-        audience: settings["audience"],
+        issuer: settings["Issuer"],
+        audience: settings["Audience"],
         claims: claims,
         expires: DateTime.UtcNow.AddDays(double
         .Parse(settings["ExpiresInDays"])),

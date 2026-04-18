@@ -38,7 +38,7 @@ public class AuthService
         .FirstOrDefaultAsync(u => u.Email == dto.email)
         ?? throw new Exception("Invalid credentials.");
 
-        if(BCrypt.Net.BCrypt.Verify
+        if(!BCrypt.Net.BCrypt.Verify
         (dto.password, user.PasswordHash))
         throw new Exception("Invalid credentials.");
 
@@ -48,7 +48,7 @@ public class AuthService
 
         return _jwt.GenerateToken(user);
     }
-    public async Task<UserDto> getProfileAsync(int userId)
+    public async Task<UserDto> getCurrentUserAsync(int userId)
     {
         var user = await _db.Users.FindAsync(userId)
         ?? throw new Exception("User not found :<");

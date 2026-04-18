@@ -1,4 +1,6 @@
 using System.Runtime.ExceptionServices;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 
@@ -11,7 +13,7 @@ public class AuthController : ControllerBase
         _auth = auth;
     }
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegistereDto dto)
+    public async Task<IActionResult> Register(RegisterDto dto)
     {
         var user = await _auth.RegisterAsync(dto);
         return Ok(user);
@@ -29,5 +31,10 @@ public class AuthController : ControllerBase
         var userId = JwtHelper.GetUserId(User);
         var user = await _auth.getCurrentUserAsync(userId);
         return Ok(user);
+    }
+    [HttpGet("test")]
+    public async Task<IActionResult> test()
+    {
+        return Ok("This is a test endpoint");
     }
 }
