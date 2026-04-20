@@ -1,0 +1,5 @@
+appsettings.json
+appsettings.Development.json
+=.gitignore
+eventflow-api/bin/
+eventflow-api/obj/
