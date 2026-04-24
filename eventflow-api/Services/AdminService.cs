@@ -1,0 +1,116 @@
+using Eventflow.Data;
+namespace Eventflow.Models;
+using Eventflow.Models.Enums;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+
+public class AdminService
+{
+    private readonly AppDbContext _db;
+    private readonly IHubContext<EventFlowHub> _hub;
+    public AdminService(AppDbContext db, IHubContext<EventFlowHub> hub)
+    {
+        _db = db;
+        _hub = hub;
+    }
+    //Account management section
+    public async Task<List<UserDto>> GetOrganizerAccountsAsync()
+    {
+        return await _db.Users
+        .Where(u => u.Role == UserRole.Organizer)
+        .OrderBy(U => U.isapproved)
+        .ThenBy(u => u.CreatedAt)
+        .Select(u => new UserDto
+        {
+            Id = u.Id,
+            Username = u.Name,
+            Email = u.Email,
+            Role = u.Role.ToString(),
+            IsApproved = u.isapproved
+        })
+        .ToListAsync();
+    }
+    public async Task ApproveOrganizerAsync(int userId)
+    {
+        var user = await _db.Users
+        .FirstOrDefaultAsync(u => u.Id == userId 
+        && u.Role == UserRole.Organizer) ??
+        throw new Exception("Organizer account not found");
+
+        if(user.isapproved)
+        {
+            throw new Exception("This account is already approved.");
+        }
+        user.isapproved = true;
+        await _db.SaveChangesAsync();
+
+        //Notify orgs
+        await _hub.Clients
+        .Group($"user-{user.Id}").SendAsync("AccountApproved",
+          new
+          {
+              message = "Your organizer account has been approved! You can now create events"
+            });
+          }
+    public async Task RejectOrganizerAsync(int userId)
+    {
+        var user = await _db.Users
+        .FirstOrDefaultAsync(u => u.Id == userId && u.Role == UserRole.Organizer) ??
+        throw new Exception("Organizer account not found");
+
+        _db.Users.Remove(user);
+        await _db.SaveChangesAsync();
+
+    }
+
+
+    //event management section: has get pending events, approve/reject events
+    public async Task<List<EventDto>> GetPendingEventsAsync()
+    {
+        return await _db.Events
+        .Include(e => e.organizerName)
+        .Where(e => e.status == EventStatus.pending)
+        .OrderBy(e => e.createdAt)
+        .Select(e => MapEventToDto(e))
+        .ToListAsync();
+    }
+    public async Task ApproveEventAsync(int eventId)
+    {
+        var ev = await _db.Events
+        .Include(e => e.organizerName)
+        .FirstOrDefaultAsync(e => e.id == eventId && e.status == EventStatus.pending)
+        ?? throw new Exception("Pending event not found");
+
+        ev.status = EventStatus.approved;
+        await _db.SaveChangesAsync();
+    }
+    public async Task RejectEventAsync(int eventId, string reason)
+    {
+         var ev = await _db.Events
+        .Include(e => e.organizerName)
+        .FirstOrDefaultAsync(e => e.id == eventId && e.status == EventStatus.pending)
+        ?? throw new Exception("Pending event not found");
+
+        ev.status = EventStatus.rejected;
+        ev.rejectionReason = reason;
+        await _db.SaveChangesAsync();
+    }
+    //Mapping DTO method to models
+    private static EventDto MapEventToDto(Events e) => new()
+    {
+        id = e.id,
+        organizerName    = e.organizerName,
+        title            = e.title,
+        description      = e.description,
+        venue            = e.venue,
+        category         = e.category,
+        eventDate        = e.eventDate,
+        ticketPrice      = e.ticketPrice,
+        totalTickets     = e.totalTickets,
+        availableTickets = e.availableTickets,
+        imageUrl        = e.imageUrl,
+        attachmentUrl   = e.attachmentUrl,
+        status           = e.status.ToString(),
+        rejectionReason  = e.rejectionReason
+    };
+}

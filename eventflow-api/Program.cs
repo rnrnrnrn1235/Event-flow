@@ -1,4 +1,5 @@
 using Eventflow.Data;
+using Eventflow.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -32,17 +33,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 builder.Services.AddAuthorization();
-// Add services to the container.
 builder.Services.AddScoped<AuthService>();
 //Later when we add more services just remove comments
 
 //builder.Services.AddScoped<EventService>();
-//builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<TicketService>();
+
 //The difference between AddScoped and AddSingleton is that AddScoped creates a new instance of the service for each HTTP request, while AddSingleton creates a single instance that is shared across all requests.
 // In this case, since QrCodeHelper does not maintain any state and can be reused across requests, we can register it as a singleton to improve performance and reduce memory usage.
 builder.Services.AddSingleton<QrCodeHelper>();
 //builder.Services.AddScoped<NotificationService>();
-//builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<AdminService>();
 
 builder.Services.AddScoped<JwtHelper>();
 //builder.Services.AddSignalR(); //Also later ba3den.
@@ -68,7 +69,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 //for real time feautures
-//app.MapHub<EventFlowHub>("/hubs/eventflow");
+app.MapHub<EventFlowHub>("/hubs/eventflow");
 
 /* Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

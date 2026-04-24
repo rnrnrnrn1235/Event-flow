@@ -13,4 +13,11 @@ public class EventFlowHub : Hub
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"event-{eventId}");
     }
+
+    // User group  for personal notifications (approvals, rejections)
+    public async Task JoinUserGroup(string userId) =>
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
+
+    public async Task LeaveUserGroup(string userId) =>
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user-{userId}");
 }

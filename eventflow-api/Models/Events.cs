@@ -6,6 +6,7 @@
     {
         public int id { get;set;}
         public int organizerId { get; set;}
+        public string organizerName { get; set;} = null!;
         public string title { get; set; } = null!;
         public string description { get; set; } = null!;
         public string venue { get;set;} = null!;
