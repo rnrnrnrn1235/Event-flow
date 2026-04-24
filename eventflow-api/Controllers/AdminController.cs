@@ -19,7 +19,7 @@ public class AdminController : ControllerBase
         return Ok(accounts);
     }                   
     [HttpPatch("accounts/{id}/approve")]
-    public async Task<IActionResult> ApproveAcoount(int id)
+    public async Task<IActionResult> ApproveAccount(int id)
     {
         await _admin.ApproveOrganizerAsync(id);
         return Ok(new{ message = "Account approved."});

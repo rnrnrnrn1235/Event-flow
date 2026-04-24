@@ -46,7 +46,7 @@ builder.Services.AddSingleton<QrCodeHelper>();
 builder.Services.AddScoped<AdminService>();
 
 builder.Services.AddScoped<JwtHelper>();
-//builder.Services.AddSignalR(); //Also later ba3den.
+builder.Services.AddSignalR();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());

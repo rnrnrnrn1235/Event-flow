@@ -36,6 +36,11 @@ public class JwtHelper
 
     }
     //helper method to extract user id from httpcontext in controllers
-    public static int GetUserId(ClaimsPrincipal user) =>
-    int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    public static int GetUserId(ClaimsPrincipal user)
+    {
+        var claim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (claim == null)
+            throw new UnauthorizedAccessException("User ID not found in token");
+        return int.Parse(claim);
+    }
 }

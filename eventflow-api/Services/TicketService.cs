@@ -47,7 +47,8 @@ public async Task<TicketDto> purchaseTicketAsync(int userId, int eventId)
                 EventId = eventId,
                 QRCode = qrBase64,
                 uniqueCode = uniqueCode,
-                PurchaseDate = DateTime.UtcNow
+                PurchaseDate = DateTime.UtcNow,
+                pricePaid = ev.ticketPrice
             };
             _db.Tickets.Add(ticket);
             ev.availableTickets--;
@@ -81,8 +82,12 @@ public async Task<List<TicketDto>> getMyTicketsAsync(int userId)
     .OrderByDescending(t => t.PurchaseDate)
     .ToListAsync();
 
-    return tickets.Select(t => MapToDto(t, t.Events).Result).ToList();
-
+    var result = new List<TicketDto>();
+    foreach (var t in tickets)
+    {
+        result.Add(await MapToDto(t, t.Events));
+    }
+    return result;
 }
 
 public async Task<TicketDto> getTicketByIdAsync(int userId, int ticketId)
