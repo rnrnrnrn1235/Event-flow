@@ -10,5 +10,7 @@ namespace Eventflow.Models
         public string uniqueCode { get; set; } = null!;
         public double pricePaid { get; set; }
 
+    public User  User  { get; set; }
+    public Events Events { get; set; }
     }
 }

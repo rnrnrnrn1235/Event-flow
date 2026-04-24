@@ -38,6 +38,9 @@ builder.Services.AddScoped<AuthService>();
 
 //builder.Services.AddScoped<EventService>();
 //builder.Services.AddScoped<TicketService>();
+//The difference between AddScoped and AddSingleton is that AddScoped creates a new instance of the service for each HTTP request, while AddSingleton creates a single instance that is shared across all requests.
+// In this case, since QrCodeHelper does not maintain any state and can be reused across requests, we can register it as a singleton to improve performance and reduce memory usage.
+builder.Services.AddSingleton<QrCodeHelper>();
 //builder.Services.AddScoped<NotificationService>();
 //builder.Services.AddScoped<AdminService>();
 
@@ -54,6 +57,7 @@ policy.WithOrigins("http://localhost:5173")
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()));
+
 
 var app = builder.Build();
 
